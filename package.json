@@ -1,0 +1,29 @@
+{
+  "name": "raveform",
+  "version": "1.0.0",
+  "description": "syncs phillips hue lights with sound",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MatthewMawby/RaveForm.git"
+  },
+  "keywords": [
+    "phillips",
+    "hue",
+    "waveform",
+    "soundwave",
+    "music",
+    "lights",
+    "color"
+  ],
+  "author": "matthew mawby",
+  "license": "SEE LICENSE IN LICENSE",
+  "bugs": {
+    "url": "https://github.com/MatthewMawby/RaveForm/issues"
+  },
+  "homepage": "https://github.com/MatthewMawby/RaveForm#readme"
+}
