@@ -24,7 +24,7 @@ hue.nupnpSearch().then(init).done();
 
 //create a lightstate
 var lightState = hue.lightState;
-var state = lightState.create().transitiontime(5).on(true);
+var state = lightState.create().transitiontime(1).on(true);
 
 
 http.listen(PORT, function(){
@@ -44,15 +44,7 @@ app.post('/hueData', function(req, res){
 
     //make api calls
     if (typeof api != 'undefined'){
-        api.setLightState(1, state.hue(Math.round(hue*65535)), function(err, lights) {
-                 if (err) throw err;
-        });
-
-        api.setLightState(2, state, function(err, lights) {
-                 if (err) throw err;
-        });
-
-        api.setLightState(3, state, function(err, lights) {
+        api.setGroupLightState(1, state.hue(Math.round(hue*65535)), function(err, lights) {
                  if (err) throw err;
         });
     }
