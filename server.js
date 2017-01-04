@@ -9,9 +9,7 @@ const PORT = process.env.PORT || 5000;
 var hue = require("node-hue-api");
 var HueApi = require("node-hue-api").HueApi;
 
-
 //Initialize hue variables
-var lightState = hue.lightState;
 var hostname = "";
 var username = "";
 var api;
@@ -24,10 +22,10 @@ var init = function(bridge) {
 };
 hue.nupnpSearch().then(init).done();
 
-//create 3 lightStates, one for each light
-var state1 = lightState.create().transitiontime(5);
-var state2 = lightState.create().transitiontime(5);
-var state3 = lightState.create().transitiontime(5);
+//create a lightstate
+var lightState = hue.lightState;
+var state = lightState.create().transitiontime(5).on(true);
+
 
 http.listen(PORT, function(){
     console.log("Server listening on: http://localhost:%s", PORT);
@@ -37,21 +35,24 @@ app.get('/', function(req, res){
     res.sendFile(__dirname + '/index.html');
 });
 
-
+//post request to recieve sound frequency data
 app.post('/hueData', function(req, res){
 
+    //get color & brightness values
     var hue = req.body["hue"];
     var bri = req.body["brightness"];
-    if (hostname!=""){
-        api.setLightState(1, state1.hue(Math.round(hue*65535)), function(err, lights) {
+
+    //make api calls
+    if (typeof api != 'undefined'){
+        api.setLightState(1, state.hue(Math.round(hue*65535)), function(err, lights) {
                  if (err) throw err;
         });
 
-        api.setLightState(2, state1.hue(Math.round(hue*65535)), function(err, lights) {
+        api.setLightState(2, state, function(err, lights) {
                  if (err) throw err;
         });
 
-        api.setLightState(3, state1.hue(Math.round(hue*65535)), function(err, lights) {
+        api.setLightState(3, state, function(err, lights) {
                  if (err) throw err;
         });
     }
