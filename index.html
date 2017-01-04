@@ -31,9 +31,10 @@
 <script>
 window.requestAnimationFrame = 	 window.requestAnimationFrame || window.mozRequestAnimationFrame || window.webkitRequestAnimationFrame || window.msRequestAnimationFrame;
 context = new AudioContext();
-    analyser = context.createAnalyser();
-    analyser.fftsize = 8;
-    analyser.smoothingTimeConstant = 0.9;
+    var analyser = context.createAnalyser();
+    var biquadFilter = context.createBiquadFilter();
+    analyser.fftsize = 512;
+    analyser.smoothingTimeConstant = 0;
     navigator.getMedia = (navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia);
     navigator.getMedia({
         audio: true,
@@ -42,6 +43,10 @@ context = new AudioContext();
         source = context.createMediaStreamSource(localMediaStream);
         console.log(source);
         source.connect(analyser);
+        console.log(context.sampleRate);
+        //source.connect(biquadFilter);
+        //biquadFilter.type = "lowpass";
+        //biquadFilter.connect(analyser);
         sendHueData();
 
     }, function (err) {
@@ -53,16 +58,30 @@ context = new AudioContext();
     }
 
     async function sendHueData() {
-        var bufferLength = analyser.fftsize;
+        var bufferLength = analyser.frequencyBinCount;
         var hueData = new Uint8Array(bufferLength);
         analyser.getByteFrequencyData(hueData);
+        var max = 0;
+        var index = -1;
+
+        for (var i = 0; i < bufferLength; i++)
+        {
+            if (hueData[i]>max)
+            {
+                max = hueData[i];
+                index = i;
+            }
+        }
+
+        var frequency = (index * 44100)/ 2048.0;
+        console.log(frequency);
+
         var hueJSON = {
-            "1" : hueData[0],
-            "2" : hueData[3],
-            "3" : hueData[7]
+            "hue" : Math.min(frequency/1000, 1),
+            "brightness" : 100
         };
 
-        console.log(hueJSON);
+        //console.log(hueJSON);
 
         if (hueData[0]+hueData[3]+hueData[7]>100)
         {
@@ -78,7 +97,7 @@ context = new AudioContext();
             });
         }
 
-        await sleep(250);
+        await sleep(400);
         requestAnimationFrame(sendHueData);
     }
 </script>
