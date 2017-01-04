@@ -17,7 +17,7 @@ var api;
 //initialization
 var init = function(bridge) {
     hostname = bridge[0]["ipaddress"];
-    username = "RVZO86tAOaakd1mfoAqLoKW0lvJlXr5Oqr1yT2ik";
+    username = "USERNAME";
     api = new HueApi(hostname, username);
 };
 hue.nupnpSearch().then(init).done();

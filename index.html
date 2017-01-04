@@ -33,22 +33,20 @@ window.requestAnimationFrame = 	 window.requestAnimationFrame || window.mozReque
 context = new AudioContext();
     var analyser = context.createAnalyser();
     var biquadFilter = context.createBiquadFilter();
-    analyser.fftsize = 512;
-    analyser.smoothingTimeConstant = 0;
+    analyser.fftsize = 512; //low resolution, but fast computation
+    analyser.smoothingTimeConstant = 0; //Important not to blend fft data - we want distinct frequencies for color change
+    //get 'mixed audio' stream from sound card
     navigator.getMedia = (navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia);
     navigator.getMedia({
         audio: true,
         video: false
     }, function (localMediaStream) {
         source = context.createMediaStreamSource(localMediaStream);
-        console.log(source);
         source.connect(analyser);
-        console.log(context.sampleRate);
         //source.connect(biquadFilter);
         //biquadFilter.type = "lowpass";
         //biquadFilter.connect(analyser);
         sendHueData();
-
     }, function (err) {
         console.log(err);
     });
@@ -58,12 +56,14 @@ context = new AudioContext();
     }
 
     async function sendHueData() {
+        //get frequency data from analyser node
         var bufferLength = analyser.frequencyBinCount;
         var hueData = new Uint8Array(bufferLength);
         analyser.getByteFrequencyData(hueData);
+
+        //find the dominant frequency bin
         var max = 0;
         var index = -1;
-
         for (var i = 0; i < bufferLength; i++)
         {
             if (hueData[i]>max)
@@ -73,30 +73,29 @@ context = new AudioContext();
             }
         }
 
+        //calculate the dominant frequency
         var frequency = (index * 44100)/ 2048.0;
         console.log(frequency);
 
+        //construct json with data
         var hueJSON = {
             "hue" : Math.min(frequency/1000, 1),
             "brightness" : 100
         };
 
-        //console.log(hueJSON);
+        //post freq data to server
+        $.ajax({
+            url: '/hueData',
+            type: 'POST',
+            dataType: 'json',
+            data: JSON.stringify(hueJSON),
+            contentType: "application/json",
+            success: function(data){
+                console.log('data sent!');
+            }
+        });
 
-        if (hueData[0]+hueData[3]+hueData[7]>100)
-        {
-            $.ajax({
-                url: '/hueData',
-                type: 'POST',
-                dataType: 'json',
-                data: JSON.stringify(hueJSON),
-                contentType: "application/json",
-                success: function(data){
-                    console.log('data sent!');
-                }
-            });
-        }
-
+        //wait 400ms & repeat
         await sleep(400);
         requestAnimationFrame(sendHueData);
     }
