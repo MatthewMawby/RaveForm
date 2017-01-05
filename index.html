@@ -53,10 +53,10 @@ git<!DOCTYPE html>
         window.requestAnimationFrame = 	 window.requestAnimationFrame || window.mozRequestAnimationFrame || window.webkitRequestAnimationFrame || window.msRequestAnimationFrame;
         context = new AudioContext(); //set audiocontext
         //set context for visualizations
-        ctx = document.getElementById('viz').getContext('2d');
-        ctx2 = document.getElementById('viz2').getContext('2d');
+        window.ctx = document.getElementById('viz').getContext('2d');
+        window.ctx2 = document.getElementById('viz2').getContext('2d');
         //create rainbow gradient and set fill style
-        gradient = ctx.createLinearGradient(0,0,0,150);
+        window.gradient = ctx.createLinearGradient(0,0,0,150);
         gradient.addColorStop(0.7, '#FF0000');
         gradient.addColorStop(0.6, '#FF7F00');
         gradient.addColorStop(0.5, '#FFFF00');
@@ -65,7 +65,7 @@ git<!DOCTYPE html>
         gradient.addColorStop(0.2, '#4B0082');
         gradient.addColorStop(0, '#9400D3');
         //Second mirrored gradient
-        gradient2 = ctx2.createLinearGradient(0,0,0,150);
+        window.gradient2 = ctx2.createLinearGradient(0,0,0,150);
         gradient2.addColorStop(.9, '#9400D3');
         gradient2.addColorStop(0.8, '#4B0082');
         gradient2.addColorStop(0.7, '#0000FF');
@@ -75,10 +75,10 @@ git<!DOCTYPE html>
         gradient2.addColorStop(0.2, '#FF0000');
 
         //create AudioNodes and set properties
-        analyser = context.createAnalyser();
+        window.analyser = context.createAnalyser();
         analyser.fftsize = 512; //low resolution, but fast computation
         analyser.smoothingTimeConstant = 0; //Important not to blend fft data - we want distinct frequencies for color change
-        vizAnalyser = context.createAnalyser();
+        window.vizAnalyser = context.createAnalyser();
         vizAnalyser.fftsize=2048;
         vizAnalyser.smoothingTimeConstant=.95; //smoothing time is important for vizualization
 
