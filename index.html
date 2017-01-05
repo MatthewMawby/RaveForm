@@ -26,15 +26,28 @@
 </nav>
 
 
-<div style="background-color: black; width:100%; height: 256px; position: relative; top: 50%; transform: translateY(-50%);">
+<div style="background-color: black; width:100%; height: 540px; position: relative; top: 50%; transform: translateY(-50%);">
     <canvas id="viz" style="background-color: black; height: 256px;"></canvas>
+    <div style="width:100%; height: 28px; color:white; background-color:black; text-align: center;">
+        <h1 style="font-family: d3iso; vertical-align: middle; line-height: 28px; margin: auto;">RaveForm</h1>
+    </div>
+    <canvas id="viz2" style="background-color: black; height: 256px;"></canvas>
 </div>
+
+<style type="text/css">
+@font-face {
+    font-family: "d3iso";
+    src: url(assets/d3_isotropism.ttf) format("truetype");
+}
+</style>
 
 <script>
 function resizeviz(){
     var viz = document.getElementById("viz");
+    var viz2 = document.getElementById("viz2");
     var rect = viz.parentNode.getBoundingClientRect();
     viz.width = rect.width;
+    viz2.width = rect.width;
 }
 
 window.onresize = function(){
@@ -50,16 +63,24 @@ window.onload = function(){
     context = new AudioContext();
     //set context for viz
     var ctx = document.getElementById('viz').getContext('2d');
+    var ctx2 = document.getElementById('viz2').getContext('2d');
     //create rainbow gradient and set fill style
-    var gradient = ctx.createLinearGradient(0,0,0,256);
+    var gradient = ctx.createLinearGradient(0,0,0,150);
     gradient.addColorStop(0.7, '#FF0000');
     gradient.addColorStop(0.6, '#FF7F00');
     gradient.addColorStop(0.5, '#FFFF00');
     gradient.addColorStop(0.4, '#00FF00');
     gradient.addColorStop(0.3, '#0000FF');
     gradient.addColorStop(0.2, '#4B0082');
-    gradient.addColorStop(1, '#9400D3');
-    ctx.fillStyle = gradient;
+    gradient.addColorStop(0, '#9400D3');
+    var gradient2 = ctx2.createLinearGradient(0,0,0,150);
+    gradient2.addColorStop(1, '#9400D3');
+    gradient2.addColorStop(0.9, '#4B0082');
+    gradient2.addColorStop(0.8, '#0000FF');
+    gradient2.addColorStop(0.7, '#00FF00');
+    gradient2.addColorStop(0.6, '#FFFF00');
+    gradient2.addColorStop(0.5, '#FF7F00');
+    gradient2.addColorStop(0.4, '#FF0000');
 
     //create AudioNodes and set properties
     var analyser = context.createAnalyser();
@@ -95,6 +116,8 @@ window.onload = function(){
     }
 
     function draw() {
+        ctx.fillStyle = gradient;
+        ctx2.fillStyle = gradient2;
         //get frequency data from analyser node
         var bufferLength = vizAnalyser.frequencyBinCount;
         var hueData = new Uint8Array(bufferLength);
@@ -102,9 +125,15 @@ window.onload = function(){
         var viz = document.getElementById("viz");
 
         ctx.clearRect(0, 0, viz.width, 256);
+        ctx2.clearRect(0, 0, viz.width, 256);
         for (var i = 0; i < bufferLength; i++)
         {
-            ctx.fillRect(i * 2, 256-hueData[i], 2, 2);
+            ctx.fillRect(i * 2, 150-(hueData[i]/2), 2, 2);
+            ctx.fillRect(i * 2, 150-(hueData[i]/1.5), 1.5, 1.5);
+            ctx.fillRect(i * 2, 150-hueData[i], 1, 1);
+            ctx2.fillRect(i * 2, hueData[i]-2, 1, 1);
+            ctx2.fillRect(i * 2, (hueData[i]/1.5)-2, 1.5, 1.5);
+            ctx2.fillRect(i * 2, (hueData[i]/2)-2, 2, 2);
         }
         requestAnimationFrame(draw);
     }
