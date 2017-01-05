@@ -1,0 +1,33 @@
+@font-face {
+    font-family: "d3iso";
+    src: url(assets/d3_isotropism.ttf) format("truetype");
+}
+
+#body{
+    max-width:100%;
+    height:100vh;
+    background-color: black;
+}
+
+#navicon{
+    width: 30px;
+    height: 30px;
+}
+
+#canvascontainer{
+    background-color: black;
+    width:100%; height: 512px;
+    position: relative; top: 50%;
+    transform: translateY(-50%);
+}
+
+canvas{
+    background-color: black;
+    height: 256px;
+}
+
+h1{
+    position: absolute;
+    left: 50%; top: 46.5%;
+    transform: translate(-50%,-46.5%)
+}

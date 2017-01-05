@@ -5,127 +5,125 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="icon" href="assets/raveform_banner.png" type="image/x-icon" />
-    <!-- link rel="stylesheet" type="text/css" href="stylesheet.css" / -->
+    <link rel="icon" href="assets/raveform_banner.png" type="image/x-icon"/>
+    <link rel="stylesheet" type="text/css" href="stylesheet.css"/>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
     <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
 </head>
 
-<body style="max-width:100%; height:100vh; background-color:black;">
+<body id="body">
 <!-- Navbar -->
 <nav class="navbar navbar-fixed-top navbar-inverse">
   <div class="container-fluid">
     <a class="navbar-brand" href="#home" style="font-family: d3iso;">
       <span>
-        <img class="gravatar" width="30" height="30" src="assets/raveform_banner.png"/>
+        <img id="navicon" src="assets/raveform_banner.png"/>
     </span>
       RaveForm
     </a>
   </div>
 </nav>
 
-
-<div style="background-color: black; width:100%; height: 512px; position: relative; top: 50%; transform: translateY(-50%);">
-    <canvas id="viz" style="background-color: black; height: 256px;"></canvas>
-    <h1 style="font-family: d3iso; position: absolute; color: white; left: 50%; top: 47%; transform: translate(-50%,-47%);">RaveForm</h1>
-    <canvas id="viz2" style="background-color: black; height: 256px;"></canvas>
+<div id="canvascontainer">
+    <canvas id="viz"></canvas>
+    <h1 style="font-family:d3iso; color: white;">RaveForm</h1>
+    <canvas id="viz2"></canvas>
 </div>
 
-<style type="text/css">
-@font-face {
-    font-family: "d3iso";
-    src: url(assets/d3_isotropism.ttf) format("truetype");
-}
-</style>
-
 <script>
-function resizeviz(){
-    var viz = document.getElementById("viz");
-    var viz2 = document.getElementById("viz2");
-    var rect = viz.parentNode.getBoundingClientRect();
-    viz.width = rect.width;
-    viz2.width = rect.width;
-}
+    window.onload = function(){
+        resizeviz();
+        init();
+    };
 
-window.onresize = function(){
-    resizeviz();
-};
+    window.onresize = function(){
+        resizeviz();
+    };
 
-window.onload = function(){
-    resizeviz();
-};
+    function resizeviz(){
+        var viz = document.getElementById("viz");
+        var viz2 = document.getElementById("viz2");
+        var rect = viz.parentNode.getBoundingClientRect();
+        viz.width = rect.width;
+        viz2.width = rect.width;
+    }
 
+    function init(){
+        window.requestAnimationFrame = 	 window.requestAnimationFrame || window.mozRequestAnimationFrame || window.webkitRequestAnimationFrame || window.msRequestAnimationFrame;
+        context = new AudioContext(); //set audiocontext
+        //set context for visualizations
+        ctx = document.getElementById('viz').getContext('2d');
+        ctx2 = document.getElementById('viz2').getContext('2d');
+        //create rainbow gradient and set fill style
+        gradient = ctx.createLinearGradient(0,0,0,150);
+        gradient.addColorStop(0.7, '#FF0000');
+        gradient.addColorStop(0.6, '#FF7F00');
+        gradient.addColorStop(0.5, '#FFFF00');
+        gradient.addColorStop(0.4, '#00FF00');
+        gradient.addColorStop(0.3, '#0000FF');
+        gradient.addColorStop(0.2, '#4B0082');
+        gradient.addColorStop(0, '#9400D3');
+        //Second mirrored gradient
+        gradient2 = ctx2.createLinearGradient(0,0,0,150);
+        gradient2.addColorStop(1, '#9400D3');
+        gradient2.addColorStop(0.9, '#4B0082');
+        gradient2.addColorStop(0.8, '#0000FF');
+        gradient2.addColorStop(0.7, '#00FF00');
+        gradient2.addColorStop(0.6, '#FFFF00');
+        gradient2.addColorStop(0.5, '#FF7F00');
+        gradient2.addColorStop(0.4, '#FF0000');
 
-    window.requestAnimationFrame = 	 window.requestAnimationFrame || window.mozRequestAnimationFrame || window.webkitRequestAnimationFrame || window.msRequestAnimationFrame;
-    context = new AudioContext();
-    //set context for viz
-    var ctx = document.getElementById('viz').getContext('2d');
-    var ctx2 = document.getElementById('viz2').getContext('2d');
-    //create rainbow gradient and set fill style
-    var gradient = ctx.createLinearGradient(0,0,0,150);
-    gradient.addColorStop(0.7, '#FF0000');
-    gradient.addColorStop(0.6, '#FF7F00');
-    gradient.addColorStop(0.5, '#FFFF00');
-    gradient.addColorStop(0.4, '#00FF00');
-    gradient.addColorStop(0.3, '#0000FF');
-    gradient.addColorStop(0.2, '#4B0082');
-    gradient.addColorStop(0, '#9400D3');
-    var gradient2 = ctx2.createLinearGradient(0,0,0,150);
-    gradient2.addColorStop(1, '#9400D3');
-    gradient2.addColorStop(0.9, '#4B0082');
-    gradient2.addColorStop(0.8, '#0000FF');
-    gradient2.addColorStop(0.7, '#00FF00');
-    gradient2.addColorStop(0.6, '#FFFF00');
-    gradient2.addColorStop(0.5, '#FF7F00');
-    gradient2.addColorStop(0.4, '#FF0000');
-
-    //create AudioNodes and set properties
-    var analyser = context.createAnalyser();
-    var biquadFilter = context.createBiquadFilter();
-    analyser.fftsize = 512; //low resolution, but fast computation
-    analyser.smoothingTimeConstant = 0; //Important not to blend fft data - we want distinct frequencies for color change
-    var vizAnalyser = context.createAnalyser();
-    vizAnalyser.fftsize=2048;
-    vizAnalyser.smoothingTimeConstant=.95; //smoothing time is important for vizualization
-    //get 'mixed audio' stream from sound card
-    navigator.getMedia = (navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia);
-    navigator.getMedia({
-        audio: true,
-        video: false
-    }, function(localMediaStream) {
-        //connect audio nodes
-        source = context.createMediaStreamSource(localMediaStream);
-        source.connect(analyser);
-        source.connect(vizAnalyser)
-        //source.connect(biquadFilter);
-        //biquadFilter.type = "lowpass";
-        //biquadFilter.connect(analyser);
-        //process audio streams
-        sendHueData();
-        draw();
-    }, function(err) {
-        console.log(err);
-    });
-
+        //create AudioNodes and set properties
+        analyser = context.createAnalyser();
+        analyser.fftsize = 512; //low resolution, but fast computation
+        analyser.smoothingTimeConstant = 0; //Important not to blend fft data - we want distinct frequencies for color change
+        vizAnalyser = context.createAnalyser();
+        vizAnalyser.fftsize=2048;
+        vizAnalyser.smoothingTimeConstant=.95; //smoothing time is important for vizualization
+        //biquadFilter = context.createBiquadFilter();
+        //get 'mixed audio' stream from sound card
+        navigator.getMedia = (navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia);
+        navigator.getMedia({
+            audio: true,
+            video: false
+        }, function(localMediaStream) {
+            //connect audio nodes
+            source = context.createMediaStreamSource(localMediaStream);
+            source.connect(analyser);
+            source.connect(vizAnalyser)
+            //source.connect(biquadFilter);
+            //biquadFilter.type = "lowpass";
+            //biquadFilter.connect(analyser);
+            //process audio streams
+            sendHueData();
+            draw();
+        }, function(err) {
+            console.log(err);
+        });
+    }
 
     function sleep(ms) {
         return new Promise(resolve => setTimeout(resolve, ms));
     }
 
     function draw() {
+        //set fillStyles
         ctx.fillStyle = gradient;
         ctx2.fillStyle = gradient2;
+
         //get frequency data from analyser node
         var bufferLength = vizAnalyser.frequencyBinCount;
         var hueData = new Uint8Array(bufferLength);
         vizAnalyser.getByteFrequencyData(hueData);
-        var viz = document.getElementById("viz");
 
+        //clear canvases
+        var viz = document.getElementById("viz");
         ctx.clearRect(0, 0, viz.width, 256);
         ctx2.clearRect(0, 0, viz.width, 256);
         for (var i = 0; i < bufferLength; i++)
         {
+            //draw reflected visualizations
             ctx.fillRect(i * 2, 150-(hueData[i]/2), 2, 2);
             ctx.fillRect(i * 2, 150-(hueData[i]/1.5), 1.5, 1.5);
             ctx.fillRect(i * 2, 150-hueData[i], 1, 1);
@@ -176,10 +174,10 @@ window.onload = function(){
             }
         });
 
-        //wait 333ms & repeat
+        //wait 400ms & repeat
         await sleep(400);
         requestAnimationFrame(sendHueData);
-        }
+    }
 </script>
 
 </body>
