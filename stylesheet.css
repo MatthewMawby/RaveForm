@@ -16,14 +16,14 @@
 
 #canvascontainer{
     background-color: black;
-    width:100%; height: 512px;
+    width:100%; height: 550px;
     position: relative; top: 50%;
     transform: translateY(-50%);
 }
 
 canvas{
     background-color: black;
-    height: 256px;
+    height: 275px;
 }
 
 h1{
