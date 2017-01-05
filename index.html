@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+git<!DOCTYPE html>
 <html>
 <title>RaveForm</title>
 
@@ -6,7 +6,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="icon" href="assets/raveform_banner.png" type="image/x-icon"/>
-    <link rel="stylesheet" type="text/css" href="stylesheet.css"/>
+    <link rel="stylesheet" type="text/css" href="assets/stylesheet.css"/>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
     <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
@@ -81,7 +81,7 @@
         vizAnalyser = context.createAnalyser();
         vizAnalyser.fftsize=2048;
         vizAnalyser.smoothingTimeConstant=.95; //smoothing time is important for vizualization
-        //biquadFilter = context.createBiquadFilter();
+
         //get 'mixed audio' stream from sound card
         navigator.getMedia = (navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia);
         navigator.getMedia({
@@ -92,9 +92,6 @@
             source = context.createMediaStreamSource(localMediaStream);
             source.connect(analyser);
             source.connect(vizAnalyser)
-            //source.connect(biquadFilter);
-            //biquadFilter.type = "lowpass";
-            //biquadFilter.connect(analyser);
             //process audio streams
             sendHueData();
             draw();
@@ -154,12 +151,28 @@
 
         //calculate the dominant frequency
         var frequency = (index * 44100)/ 2048.0;
-        console.log(frequency);
+        var brightness = max;
 
+        //determine if freq is low or high
+        var low = false;
+        if (frequency<450){
+            low = true;
+            //dim lights if no sound
+            if (frequency<0)
+            {
+                brightness = 125;
+            }
+        }
+
+        //calculate hue val
+        var hue = Math.min(frequency/1250, 1);
+
+        console.log(frequency);
         //construct json with data
         var hueJSON = {
-            "hue" : Math.min(frequency/1250, 1),
-            "brightness" : 100
+            "hue" : hue,
+            "brightness" : brightness,
+            "low" : low
         };
 
         //post freq data to server
@@ -175,7 +188,7 @@
         });
 
         //wait 400ms & repeat
-        await sleep(400);
+        await sleep(333);
         requestAnimationFrame(sendHueData);
     }
 </script>
