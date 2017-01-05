@@ -20,7 +20,7 @@ var init = function(bridge) {
     username = "USERNAME";
     api = new HueApi(hostname, username);
 };
-hue.nupnpSearch().then(init).done();
+hue.upnpSearch().then(init).done();
 
 //create a lightstate
 var lightState = hue.lightState;
