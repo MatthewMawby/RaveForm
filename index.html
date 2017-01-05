@@ -26,8 +26,8 @@
 </nav>
 
 
-<div id="parent" style="background-color: black; width:100%; position: relative; top: 50%; transform: translateY(-50%);">
-    <canvas id="viz" style="background-color: red;"></canvas>
+<div style="background-color: black; width:100%; height: 256px; position: relative; top: 50%; transform: translateY(-50%);">
+    <canvas id="viz" style="background-color: red; height: 256px;"></canvas>
 </div>
 
 <script>
@@ -35,7 +35,6 @@ function resizeviz(){
     var viz = document.getElementById("viz");
     var rect = viz.parentNode.getBoundingClientRect();
     viz.width = rect.width;
-    viz.height = rect.height;
 }
 
 window.onresize = function(){
@@ -46,30 +45,59 @@ window.onload = function(){
     resizeviz();
 };
 
-window.requestAnimationFrame = 	 window.requestAnimationFrame || window.mozRequestAnimationFrame || window.webkitRequestAnimationFrame || window.msRequestAnimationFrame;
-context = new AudioContext();
+function init(){
+    window.requestAnimationFrame = 	 window.requestAnimationFrame || window.mozRequestAnimationFrame || window.webkitRequestAnimationFrame || window.msRequestAnimationFrame;
+    context = new AudioContext();
+    //set context for viz
+    window.ctx = document.getElementById('viz').getContext('2d');
+    
+
+    //create AudioNodes and set properties
     var analyser = context.createAnalyser();
     var biquadFilter = context.createBiquadFilter();
     analyser.fftsize = 512; //low resolution, but fast computation
     analyser.smoothingTimeConstant = 0; //Important not to blend fft data - we want distinct frequencies for color change
+    var vizAnalyser = context.createAnalyser();
+    vizAnalyser.fftsize=2048;
+    vizAnalyser.smoothingTimeConstant=0.9; //smoothing time is important for vizualization
     //get 'mixed audio' stream from sound card
     navigator.getMedia = (navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia);
     navigator.getMedia({
         audio: true,
         video: false
     }, function (localMediaStream) {
+        //connect audio nodes
         source = context.createMediaStreamSource(localMediaStream);
         source.connect(analyser);
+        source.connect(vizAnalyser)
         //source.connect(biquadFilter);
         //biquadFilter.type = "lowpass";
         //biquadFilter.connect(analyser);
+        //process audio streams
         sendHueData();
+        draw();
     }, function (err) {
         console.log(err);
     });
+}
 
     function sleep(ms) {
         return new Promise(resolve => setTimeout(resolve, ms));
+    }
+
+    function draw() {
+        //get frequency data from analyser node
+        var bufferLength = vizAnalyser.frequencyBinCount;
+        var hueData = new Uint8Array(bufferLength);
+        vizAnalyser.getByteFrequencyData(hueData);
+        var viz = document.getElementById("viz");
+        console.log(viz.width);
+        ctx.clearRect(0, 0, viz.width, 256);
+        for (var i = 0; i < bufferLength; i++)
+        {
+            ctx.fillRect(i * 2, hueData[i], 1, 256);
+        }
+        requestAnimationFrame(draw);
     }
 
     async function sendHueData() {
@@ -116,6 +144,9 @@ context = new AudioContext();
         await sleep(400);
         requestAnimationFrame(sendHueData);
     }
+
+//run everything
+init();
 </script>
 
 </body>
