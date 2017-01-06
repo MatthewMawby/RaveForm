@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<title>RaveForm</title>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="icon" href="assets/raveform_banner.png" type="image/x-icon"/>
+    <link rel="stylesheet" type="text/css" href="assets/stylesheet.css"/>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+</head>
+
+    <body id="body" style="background-color: white;">
+    <!-- Navbar -->
+    <nav class="navbar navbar-fixed-top navbar-inverse">
+      <div class="container-fluid">
+        <a class="navbar-brand" href="#home" style="font-family: d3iso;">
+          <span>
+            <img id="navicon" src="assets/raveform_banner.png"/>
+        </span>
+          RaveForm
+        </a>
+      </div>
+    </nav>
+
+    <div width="100%" height="100%">
+        <button id="button" onclick="load()" class="button" type="button">Continue</button>
+    </div>
+
+    <script>
+    function load(){
+        //post freq data to server
+        $.ajax({
+            url: '/set',
+            type: 'GET',
+            success: function(data){
+                console.log('loading index');
+                location.reload();
+            }
+        });
+    }
+
+    </script>
+
+    </body>
+</html>

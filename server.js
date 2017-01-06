@@ -1,10 +1,12 @@
 //Start HTTP Server & set PORT
 var bodyParser = require('body-parser')
+var cookieParser = require('cookie-parser');
 var express = require('express');
 var app = express();
 var http = require('http').Server(app);
 app.use("/assets", express.static(__dirname+'/assets'));
 app.use(bodyParser.json());
+app.use(cookieParser());
 const PORT = process.env.PORT || 5000;
 var hue = require("node-hue-api");
 var HueApi = require("node-hue-api").HueApi;
@@ -14,29 +16,72 @@ var hostname = "";
 var username = "";
 var api;
 
-//initialization
-var init = function(bridge) {
-    hostname = bridge[0]["ipaddress"];
-    username = "USERNAME";
-    api = new HueApi(hostname, username);
-};
-hue.upnpSearch().then(init).done();
-
-//create a lightstate
-var lightState = hue.lightState;
-var highstate = lightState.create().transitiontime(1).on(true);
-var lowstate = lightState.create().transitiontime(1).on(true);
-
 http.listen(PORT, function(){
     console.log("Server listening on: http://localhost:%s", PORT);
 });
 
+//set Hostname
+var setHost = function(bridge) {
+    hostname = bridge[0]["ipaddress"];
+    console.log(hostname);
+};
+hue.upnpSearch().then(setHost).done();
+
+//initialize api
+function init(){
+    api = new HueApi(hostname, username);
+}
+
+//set username and initialize
+var setUser = function(result){
+    username = JSON.stringify(result);
+    init();
+};
+
+var displayError = function(err) {
+    console.log(err);
+};
+
+//sets hub username cookie if it wasn't previously set & redirects
+app.get('/set', function(req, res){
+    if (username=="")
+    {
+        var tempapi = new HueApi();
+        tempapi.registerUser(hostname, "RaveForm")
+            .then(setUser)
+            .fail(displayError)
+            .done();
+    }
+    if (username == "")
+    {
+        res.sendStatus(503);
+    }
+    else{
+        res.cookie('Huesername', username, {maxAge: new Date(253402300000000)});
+        res.sendStatus(200);
+    }
+
+})
+
+//gets main page
 app.get('/', function(req, res){
-    res.sendFile(__dirname + '/index.html');
+    var cookie = req.cookies.Huesername;
+    if (cookie === undefined)
+    {
+        res.sendFile(__dirname + '/setup.html');
+    }
+    else {
+        username = cookie;
+        init();
+        res.sendFile(__dirname + '/index.html');
+    }
 });
 
-//define bool for use in post
+//define variables for post
 var prev_high = true;
+var lightState = hue.lightState;
+var highstate = lightState.create().transitiontime(1).on(true);
+var lowstate = lightState.create().transitiontime(1).on(true);
 //post request to recieve sound frequency data
 app.post('/hueData', function(req, res){
 
@@ -80,7 +125,7 @@ app.post('/hueData', function(req, res){
                  if (err) throw err;
         });
     }
-    
+
     //OK
     res.sendStatus(200);
 });
