@@ -11,7 +11,7 @@ The first thing you will need to do is [enable stereo mix](#stereomix) so RaveFo
 
 The second pre-setup step is setting up your light groups using the Phillips Hue App. RaveForm controls lights put into two light groups named "highs" and "lows". Put the lights you want to display high frequencies with into "highs" and low frequency lights into "lows".
 
-![alt text](assets/groups.png "RaveForm Hue light groups")
+<image src="assets/groups.png" title="hue groups" height="480" width="300"></image>
 
 
 ###Setup
@@ -58,4 +58,4 @@ pavucontrol
 ```
 ####step 3:
 Navigate to the "recording" tab and with RaveForm running select "monitor of built in audio analog stereo" for the browser that RaveForm is running in.
-![alt text](pavucontrols.png "Enable Stereo Mix")
+![alt text](assets/pavucontrols.png "Enable Stereo Mix")
