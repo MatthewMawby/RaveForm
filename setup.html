@@ -12,7 +12,7 @@
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
 </head>
 
-    <body id="body" style="background-color: white;">
+    <body id="body" style="background-color: white; height: 100vh; width 100vw;">
     <!-- Navbar -->
     <nav class="navbar navbar-fixed-top navbar-inverse">
       <div class="container-fluid">
@@ -25,7 +25,11 @@
       </div>
     </nav>
 
-    <div width="100%" height="100%">
+    <div id="instruction_container">
+        <image id="bridge_image" src="assets/press.png"/>
+        <p id="instructions">
+            Please press the button on your bridge and then continue.
+        </p>
         <button id="button" onclick="load()" class="button" type="button">Continue</button>
     </div>
 

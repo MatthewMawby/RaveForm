@@ -25,6 +25,7 @@
 canvas{
     background-color: black;
     height: 256px;
+    max-width: 100vw;
 }
 
 h1{
@@ -33,13 +34,37 @@ h1{
     transform: translate(-50%,-46.5%)
 }
 
+#instruction_container{
+    position: relative;
+    width: 100%;
+    height:100%;
+}
+
+#bridge_image{
+    position: absolute;
+    left: 50%; top: 15%;
+    transform: translate(-50%,-15%);
+    width: 250px;
+    height: 250px;
+}
+
+#instructions{
+    position: absolute;
+    left: 50%; top: 40%;
+    transform: translate(-50%,-40%);
+    font-size: 1.2em;
+}
+
 #button{
     position: absolute;
-    left: 50%; top: 46.5%;
-    transform: translate(-50%,-46.5%);
+    left: 50%; top: 55%;
+    transform: translate(-50%,-55%);
     color: white;
     background-color: black;
     border: solid thin black;
+    width: 150px;
+    height: 30px;
+    border-radius: 3px;
 }
 
 #button:hover{
