@@ -167,7 +167,6 @@
         //calculate hue val
         var hue = Math.min(frequency/1250, 1);
 
-        console.log(frequency);
         //construct json with data
         var hueJSON = {
             "hue" : hue,
@@ -182,9 +181,6 @@
             dataType: 'json',
             data: JSON.stringify(hueJSON),
             contentType: "application/json",
-            success: function(data){
-                console.log('data sent!');
-            }
         });
 
         //wait 333ms & repeat

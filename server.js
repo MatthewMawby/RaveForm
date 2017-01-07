@@ -23,7 +23,6 @@ http.listen(PORT, function(){
 //set Hostname
 var setHost = function(bridge) {
     hostname = bridge[0]["ipaddress"];
-    console.log(hostname);
 };
 hue.upnpSearch().then(setHost).done();
 
@@ -33,8 +32,6 @@ var highs;
 var lows;
 //initialize api
 function init(){
-    console.log(username.replace(/['"]+/g, ''));
-    console.log(hostname);
     api = new HueApi(hostname, username.replace(/['"]+/g, ''));
 
     //assign group ids for lights
