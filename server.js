@@ -27,9 +27,31 @@ var setHost = function(bridge) {
 };
 hue.upnpSearch().then(setHost).done();
 
+
+//to save light group IDs
+var highs;
+var lows;
 //initialize api
 function init(){
-    api = new HueApi(hostname, username);
+    console.log(username.replace(/['"]+/g, ''));
+    console.log(hostname);
+    api = new HueApi(hostname, username.replace(/['"]+/g, ''));
+
+    //assign group ids for lights
+    api.groups(function(err, result) {
+        if (err) throw err;
+        for (var i = 0; i<result.length; i++)
+        {
+            if (result[i]["name"] == "highs")
+            {
+                highs = result[i]["lights"];
+            }
+            if (result[i]["name"] == "lows")
+            {
+                lows = result[i]["lights"];
+            }
+        }
+    });
 }
 
 //set username and initialize
@@ -77,6 +99,15 @@ app.get('/', function(req, res){
     }
 });
 
+function setLights(lights, state){
+    for (var i=0; i<lights.length; i++)
+    {
+        api.setLightState(parseInt(lights[i]), state, function(err, lights){
+            if (err) throw err;
+        });
+    }
+}
+
 //define variables for post
 var prev_high = true;
 var lightState = hue.lightState;
@@ -98,7 +129,6 @@ app.post('/hueData', function(req, res){
             highstate.bri(bri-175);
             prev_high = false;
         }
-
     }
     //high freq
     else{
@@ -113,17 +143,8 @@ app.post('/hueData', function(req, res){
 
     //make api calls
     if (typeof api != 'undefined'){
-
-        api.setLightState(1, highstate, function(err, lights) {
-                 if (err) throw err;
-        });
-        api.setLightState(2, highstate, function(err, lights) {
-                 if (err) throw err;
-        });
-
-        api.setLightState(3, lowstate, function(err, lights) {
-                 if (err) throw err;
-        });
+        setLights(highs, highstate);
+        setLights(lows, lowstate);
     }
 
     //OK
