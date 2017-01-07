@@ -11,12 +11,12 @@ The first thing you will need to do is [enable stereo mix](#stereomix) so RaveFo
 
 The second pre-setup step is setting up your light groups using the Phillips Hue App. RaveForm controls lights put into two light groups named "highs" and "lows". Put the lights you want to display high frequencies with into "highs" and low frequency lights into "lows".
 
-![alt text](assets/groups.jpg "RaveForm Hue light groups")
+![alt text](assets/groups.png "RaveForm Hue light groups")
 
 
 ###Setup
 
-Setting up Raveform is simple. 
+Setting up Raveform is simple.
 To begin running the app just fun the following commands:
 
 ```bash
